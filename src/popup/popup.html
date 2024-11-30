@@ -1,0 +1,37 @@
+<!-- src/popup/popup.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Microphone Test</title>
+  <style>
+    body {
+      min-width: 200px;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-family: Arial, sans-serif;
+      padding: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: blue;
+    }
+  </style>
+</head>
+<body>
+  <!-- <button id="startTestBtn">Start Test</button> -->
+  <button id="startRecordingBtn">Start Recording</button>
+  <button id="stopRecordingBtn" disabled>Stop Recording</button>
+  <div id="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

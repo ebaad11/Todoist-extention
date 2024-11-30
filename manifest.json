@@ -1,0 +1,21 @@
+{
+    "manifest_version": 3,
+    "name": "Microphone Test Extension",
+    "version": "1.0",
+    "description": "A simple Chrome extension to test microphone access.",
+    "permissions": [
+      "scripting",
+    "activeTab",
+    "tabs",
+    "storage"
+    ],
+    "action": {
+      "default_popup": "src/popup/popup.html"
+    },
+    "web_accessible_resources": [
+      {
+        "resources": ["src/permission/permission.html", "src/permission/requestPermission.js"],
+        "matches": ["<all_urls>"]
+      }
+    ]
+  }
