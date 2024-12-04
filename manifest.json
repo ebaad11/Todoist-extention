@@ -2,14 +2,17 @@
   "name": "Microphone Access Extension",
   "version": "1.0",
   "manifest_version": 3,
-  "permissions": ["tabs", "activeTab", "scripting", "microphone"],
+  "permissions": [ "activeTab", "scripting"],
+  "host_permissions":["https://app.todoist.com/app/*"],
   "action": {
     "default_popup": "src/popup/popup.html"
   },
+
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["src/content/contentScript.js"]
+      "matches": ["https://app.todoist.com/app/today*"],
+      "js": ["src/content/content.js"],
+      "css": ["src/content/content.css"]
     }
   ]
 }
