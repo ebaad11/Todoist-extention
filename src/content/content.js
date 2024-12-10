@@ -223,3 +223,5 @@ console.log("loaded");
   const uiElements = createRecorderUI();
   setupRecording(uiElements);
 })();
+
+// add the fetch instead of the actual library 
