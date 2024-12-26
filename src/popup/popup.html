@@ -1,37 +1,18 @@
-<!-- src/popup/popup.html -->
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Microphone Test</title>
-  <!-- <style>
-    body {
-      min-width: 200px;
-      min-height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      font-family: Arial, sans-serif;
-      padding: 10px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    #status {
-      margin-top: 10px;
-      font-size: 14px;
-      color: blue;
-    }
-  </style> -->
-</head>
-<body>
-  <button id="startRecording">Start Recording</button>
-  <button id="stopRecording" disabled>Stop Recording</button>
-  
-  <div id="status"></div>
+  <head>
+    <meta charset="utf-8" />
+    <title>Todoist API Key Setup</title>
+  </head>
+  <body>
+    <h1>Enter Todoist API Key</h1>
+    <input type="text" id="apiKeyInput" placeholder="Your Todoist API Key" />
+    <button id="saveKeyBtn">Save Key</button>
+    <button id="refreshKeyBtn">Refresh Key</button>
+    <button id="deleteKeyBtn">Delete Key</button> <!-- Added button to delete API key -->
+    <!-- Status message area -->
+    <div id="statusMessage" style="margin-top: 10px;"></div>
 
-  <script src="popup.js"></script>
-</body>
+    <script src="popup.js"></script>
+  </body>
 </html>

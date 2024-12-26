@@ -1,21 +1,47 @@
-
 #todoist-mic-recorder {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #333333; /* Dark background for dark theme */
-    border: 1px solid #555; /* Darker border for dark theme */
+    position: absolute;
+    top: 500px; 
+    right: 0px;
+    width: 100px;
+    background-color: #333;
+    border: 1px solid #555;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Stronger shadow for contrast */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     padding: 15px;
     z-index: 10000;
     font-family: Arial, sans-serif;
-    width: 220px;
     text-align: center;
     box-sizing: border-box;
-    color: #ddd; /* Light text for readability on dark background */
+    color: #ddd;
+    cursor: grab;
+}
+/* Style for minimized mode */
+#todoist-mic-recorder.minimized {
+  width: 40px;
+  height: 40px;
+  padding: 5px;
+  overflow: hidden;
 }
 
+/* Buttons: Minimize and Expand */
+#minimize-btn,
+#expand-btn {
+  background-color: #444;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  margin: 5px 0;
+}
+
+#minimize-btn:hover,
+#expand-btn:hover {
+  background-color: #555;
+  border-color: #666;
+}
+  
 #recButton {
     width: 35px;
     height: 35px;
@@ -60,19 +86,7 @@
     text-align: center;
 }
 
-#transcript-box {
-    width: calc(100% - 16px);
-    height: 80px;
-    margin-top: 10px;
-    padding: 8px;
-    border: 1px solid #555; /* Darker border for dark theme */
-    border-radius: 4px;
-    resize: none;
-    font-size: 14px;
-    box-sizing: border-box;
-    background-color: #222; /* Dark background for text box */
-    color: #ddd; /* Light text color for readability */
-}
+
 
 #close-audio {
     background-color: #444; /* Darker background for button */
