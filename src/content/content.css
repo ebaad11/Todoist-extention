@@ -1,9 +1,9 @@
 #todoist-mic-recorder {
-    position: absolute;
-    top: 500px; 
+    position: fixed; 
+    bottom: 0px; 
     right: 0px;
-    width: 100px;
-    background-color: #333;
+    width: 75px;
+    background-color: rgba(51, 51, 51, 0.5); /* Adjusted for transparency */
     border: 1px solid #555;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
@@ -12,31 +12,55 @@
     font-family: Arial, sans-serif;
     text-align: center;
     box-sizing: border-box;
-    color: #ddd;
+    color: transparent; /* Text color made transparent by default */
     cursor: grab;
+    max-height: 110px;
+    &:hover {
+      background-color: rgba(51, 51, 51, 1); /* Full opacity on hover */
+      color: #ddd; /* Text color visible on hover */
+    }
 }
 /* Style for minimized mode */
-#todoist-mic-recorder.minimized {
-  width: 40px;
-  height: 40px;
-  padding: 5px;
-  overflow: hidden;
+
+#todoist-mic-recorder.forced-open:hover {
+    position: fixed; 
+    /* bottom: 0px; 
+    right: 0px;
+    width: 75px;
+    /* background-color: rgba(51, 51, 51, 0.5); Adjusted for transparency */
+    border: 1px solid #555;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 1);
+    padding: 15px;
+    z-index: 10000;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    box-sizing: border-box;
+    color: transparent; /* Text color made transparent by default */
+    cursor: grab;
+    max-height: 110px;
+  }
+
+#todoist-mic-recorder:not(:hover) #status,
+#todoist-mic-recorder:not(:hover) #notification-container {
+  display: none;
 }
 
-/* Buttons: Minimize and Expand */
-#minimize-btn,
-#expand-btn {
-  background-color: #444;
-  color: #fff;
-  border: 1px solid #555;
-  border-radius: 4px;
-  padding: 5px;
-  font-size: 12px;
-  cursor: pointer;
-  margin: 5px 0;
+#todoist-mic-recorder.forced-open #status,
+#todoist-mic-recorder.forced-open #recButton,
+#todoist-mic-recorder.forced-open #notification-container {
+  display: block !important;
 }
 
-#minimize-btn:hover,
+/* The default rule hides elements when not hovered */
+#todoist-mic-recorder:not(:hover) #status,
+#todoist-mic-recorder:not(:hover) #recButton,
+#todoist-mic-recorder:not(:hover) #expand-btn,
+#todoist-mic-recorder:not(:hover) #notification-container {
+  display: none;
+}
+
+
 #expand-btn:hover {
   background-color: #555;
   border-color: #666;
@@ -46,13 +70,19 @@
     width: 35px;
     height: 35px;
     font-size: 0;
-    background-color: #9d0208; /* Adjusted for better visibility in dark theme */
+    background-color: rgba(157, 2, 8, 0.5); /* Made transparent for default state */
     border: 0;
     border-radius: 50%;
     margin: 10px auto;
     outline: none;
     cursor: pointer;
     display: block;
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    opacity: 0.3;
+}
+#recButton:hover {
+    background-color: rgba(157, 2, 8, 1); /* Becomes more red on hover */
+    opacity: 1;
 }
 
 #recButton.notRec {

@@ -6,7 +6,7 @@ let ending = null;
   let audioChunks = [];
   let audioStream = null;
   let isRecording = false; // Track recording state
-  let isMinimized = false;
+
 
 
   
@@ -17,19 +17,16 @@ let ending = null;
     const recorderContainer = document.createElement('div');
     recorderContainer.id = 'todoist-mic-recorder';
     
-    const dragHandle = document.createElement('div');
-    dragHandle.id = 'drag-handle';
-    dragHandle.textContent = 'Drag Here';
-    recorderContainer.appendChild(dragHandle);
+    
    
-    makeContainerDraggable(recorderContainer, '#drag-handle');
+    makeContainerDraggable(recorderContainer);
 
     // Create the recording toggle button
     const recButton = document.createElement('button');
     recButton.id = 'recButton';
     recButton.classList.add('notRec'); // Initial state
 
-      // Conditionally display the recording button based on API key availability
+      
   
     // Create status display
     const statusDisplay = document.createElement('div');
@@ -40,40 +37,6 @@ let ending = null;
     // Append elements to the container
     recorderContainer.appendChild(recButton);
     recorderContainer.appendChild(statusDisplay);
-    // Create the "toggle size" button
-   // Create the "Minimize" button
-const minimizeButton = document.createElement('button');
-minimizeButton.id = 'minimize-btn';
-minimizeButton.textContent = 'Minimize';
-
-// Create the "Expand" button
-const expandButton = document.createElement('button');
-expandButton.id = 'expand-btn';
-expandButton.textContent = 'Expand';
-// Hide the expand button initially
-expandButton.style.display = 'none';
-
-// Add click event to "Minimize" button
-minimizeButton.addEventListener('click', () => {
-  isMinimized = true;
-  recorderContainer.classList.add('minimized');
-  // Hide the minimize button, show the expand button
-  minimizeButton.style.display = 'none';
-  expandButton.style.display = 'block';
-});
-
-// Add click event to "Expand" button
-expandButton.addEventListener('click', () => {
-  isMinimized = false;
-  recorderContainer.classList.remove('minimized');
-  // Hide the expand button, show the minimize button
-  expandButton.style.display = 'none';
-  minimizeButton.style.display = 'block';
-});
-
-// Append both buttons to the container
-recorderContainer.appendChild(minimizeButton);
-recorderContainer.appendChild(expandButton);
 
 
     // Append the container to the body
@@ -109,7 +72,7 @@ recorderContainer.appendChild(expandButton);
   function updateUI(isRecording, uiElements) {
     const { recButton, statusDisplay, transcriptBox, submitButton } = uiElements;
     if (isRecording) {
-      statusDisplay.textContent = 'Recording...';
+      statusDisplay.textContent = 'Rec..';
       recButton.classList.remove('notRec');
       recButton.classList.add('Rec');
       
@@ -126,7 +89,7 @@ recorderContainer.appendChild(expandButton);
   async function startRecording(uiElements) {
     const { statusDisplay } = uiElements;
     try {
-      statusDisplay.textContent = 'Requesting microphone access...';
+      statusDisplay.textContent = 'Accessing\n mic...';
       audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorder = new MediaRecorder(audioStream);
       audioChunks = [];
@@ -136,9 +99,9 @@ recorderContainer.appendChild(expandButton);
       };
 
       mediaRecorder.onstart = () => {
-        // console.log('Recording started.');
         isRecording = true;
         updateUI(isRecording, uiElements);
+        document.getElementById('todoist-mic-recorder').classList.add('forced-open');
       };
 
       mediaRecorder.onstop = async () => {
@@ -186,26 +149,28 @@ recorderContainer.appendChild(expandButton);
     chrome.runtime.sendMessage({ action: 'sendAudio', audioData: base64Audio })
       .then(response => {
         if (response) {
-          // console.log('Actions JSON:', response.actions);
-          // console.log('Type of response.actions:', typeof response.actions); // Should be 'string'
-  
+
           const extractedActions = extractJson(response.actions);
   
           extractedActions.forEach(action => {
-            performTodoistAction(action, uiElements)
-            
-              // .then((action) => {
-              //   console.log(`Action: ${action.action}, Content: ${action.content}`);
-              // })
-              // .catch(error => console.error('Error performing action:', error));
-          });
+            performTodoistAction(action, uiElements);
+          })
+          
         } else {
           // console.log('No response received from background script.');
           return Promise.reject('No response received');
         }
       })
       .then(() => {
-        uiElements.statusDisplay.textContent = "Tasks added";
+        uiElements.statusDisplay.textContent = "added";
+        setTimeout(() => {
+          uiElements.statusDisplay.textContent = "Idle!";
+        }, 3000); // 3000 milliseconds = 3 seconds
+
+        setTimeout(() => {
+          document.getElementById('todoist-mic-recorder').classList.remove('forced-open');
+        }, 5000); // 5000 milliseconds = 5 seconds
+        
       })
       .catch(error => {
         console.error('Error processing actions:', error);
@@ -222,7 +187,8 @@ recorderContainer.appendChild(expandButton);
     const { statusDisplay } = uiElements;
     if (mediaRecorder && mediaRecorder.state === 'recording') {
       mediaRecorder.stop();
-      statusDisplay.textContent = 'Stopping recording...';
+      statusDisplay.textContent = 'Adding..';
+      
     }
   }
 
@@ -291,16 +257,15 @@ function performTodoistAction(action,uiElements) {
   
     const notification = document.createElement('div');
     notification.textContent = message;
-    notification.style.backgroundColor = 'green';
+    notification.style.backgroundColor = '#b19cd9'; // Light purple color
     notification.style.color = 'white';
     notification.style.margin = '5px';
-    notification.style.padding = '10px';
-    notification.style.borderRadius = '4px';
+    notification.style.padding = '10px'; // Adjusted padding for a squarer appearance
+    notification.style.borderRadius = '8px'; // Adjusted for a squarer shape
     
     // Set initial opacity to 0
     notification.style.opacity = '0';
-    notification.style.transition = 'opacity 1s';
-  
+    notification.style.transition = 'opacity 1s ease-in-out';
     // Append notification immediately, but it starts invisible
     notificationContainer.appendChild(notification);
   
@@ -308,7 +273,7 @@ function performTodoistAction(action,uiElements) {
         // Calculate the difference in seconds
     let timeDifference = (ending - starting) / 1000;
     console.log(timeDifference)
-    // Fade in after ~1 second
+
     setTimeout(() => {
       notification.style.opacity = '1';
     }, 1);
@@ -323,12 +288,10 @@ function performTodoistAction(action,uiElements) {
   }
   const { statusDisplay } = uiElements;
   const url = 'https://api.todoist.com/rest/v2/tasks';
-
-  
   // Prepare the request payload
   const payload = {
     content: action.content,
-    due_string: action.due_string,
+    due_string: action.due_string || "today",
     due_lang: action.due_lang
   };
 
@@ -352,27 +315,26 @@ function performTodoistAction(action,uiElements) {
   .then(data => {
     // console.log('Task created successfully:', data);
     // Add this line:
-    showSuccessNotification(`Task "${payload.content}" created! Due: ${payload.due_string}`, uiElements);
+    showSuccessNotification(`"${payload.content}" created! Due: ${payload.due_string}`, uiElements);
   })
   .catch(error => {
     console.error('Error:', error.message);
   });
 }
 
-
-
-function makeContainerDraggable(container, handleSelector) {
+function makeContainerDraggable(container) {
   let offsetX = 0;
   let offsetY = 0;
   let isDragging = false;
 
+  // Listen for mousedown on the entire container
+  container.addEventListener('mousedown', (e) => {
+    // If user clicked the red button, don't drag
+    if (e.target.id === 'recButton') {
+      return;
+    }
+    // container.classList.add('dragging');
 
-
-  const handle = container.querySelector(handleSelector);
-  // Set initial position
-
-  // Mousedown on the handle
-  handle.addEventListener('mousedown', (e) => {
     isDragging = true;
     offsetX = e.clientX - container.offsetLeft;
     offsetY = e.clientY - container.offsetTop;
@@ -381,19 +343,26 @@ function makeContainerDraggable(container, handleSelector) {
 
   document.addEventListener('mousemove', (e) => {
     if (!isDragging) return;
-    container.style.left = (e.clientX - offsetX) + 'px';
-    container.style.top = (e.clientY - offsetY) + 'px';
+    container.classList.remove('dragging');
+    let newLeft = e.clientX - offsetX;
+    let newTop = e.clientY - offsetY;
+
+    // Constrain movement inside the viewport
     const maxLeft = window.innerWidth - container.offsetWidth;
     const maxTop = window.innerHeight - container.offsetHeight;
-    // container.style.left = '0px'; // X coordinate
-    // container.style.top = '0px'; // Y coordinate
-  
-    container.style.left = Math.min(Math.max(0, e.clientX - offsetX), maxLeft) + 'px';
-    container.style.top = Math.min(Math.max(0, e.clientY - offsetY), maxTop) + 'px';
+
+    newLeft = Math.min(Math.max(0, newLeft), maxLeft);
+    newTop = Math.min(Math.max(0, newTop), maxTop);
+
+    container.style.left = newLeft + 'px';
+    container.style.top = newTop + 'px';
   });
 
   document.addEventListener('mouseup', () => {
-    isDragging = false;
-    container.style.cursor = 'grab'
-  });
+    if (isDragging) {
+        container.classList.remove('dragging'); // Ensure this line is added
+        isDragging = false;
+        container.style.cursor = 'grab';
+    }
+});
 }

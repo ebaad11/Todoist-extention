@@ -38,7 +38,7 @@ function deleteApiKey() {
 }
 
 function loadExistingApiKey() {
-    chrome.storage.sync.get(["todoistApiKey"], (result) => {
+    chrome.storage.sync.get(["todoistApiKey", "hotkey"], (result) => {
         const apiKeyInput = document.getElementById("apiKeyInput");
         if (result.todoistApiKey) {
             apiKeyInput.value = result.todoistApiKey;
@@ -46,7 +46,12 @@ function loadExistingApiKey() {
         } else {
             updateStatusMessage("No API key found. Please enter one.");
         }
+
+        
+        
     });
+
+    
 }
 
 function initPopup() {
@@ -54,6 +59,9 @@ function initPopup() {
     document.getElementById("refreshKeyBtn").addEventListener("click", refreshApiKey);
     document.getElementById("deleteKeyBtn").addEventListener("click", deleteApiKey);
     loadExistingApiKey();
+
+
+
 }
 
 document.addEventListener("DOMContentLoaded", initPopup);
