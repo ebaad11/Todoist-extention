@@ -7,10 +7,6 @@ let ending = null;
   let audioStream = null;
   let isRecording = false; // Track recording state
 
-
-
-  
-  
   // Function to create the recorder UI
   function createRecorderUI(apiKeyAvailable) {
     // Create the recorder UI container
