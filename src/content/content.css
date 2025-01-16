@@ -21,7 +21,30 @@
     }
 }
 /* Style for minimized mode */
+#larger-container{
+    position: fixed; 
+    bottom: 0px; 
+    right: 0px;
+    width: 75px;
+    background-color: rgba(51, 51, 51, 0.5); /* Adjusted for transparency */
+    border: 1px solid #555;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    z-index: 10000;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    box-sizing: border-box;
+    color: transparent; /* Text color made transparent by default */
+    cursor: grab;
+    max-height: 110px;
+    &:hover {
+      background-color: rgba(51, 51, 51, 1); /* Full opacity on hover */
+      color: #ddd; /* Text color visible on hover */
+    }
 
+
+}
 #todoist-mic-recorder.forced-open:hover {
     position: fixed; 
     /* bottom: 0px; 
@@ -134,4 +157,108 @@
 #close-audio:hover {
     background-color: #555; /* Slightly lighter background on hover for contrast */
     color: #fff; /* White text on hover for better visibility */
+}
+
+/* Container that holds multiple notifications */
+#notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 300px;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Single notification styling */
+.notification {
+  position: relative; /* so the close button can float if needed */
+  background-color: #222;
+  color: #fff;
+  margin: 5px 0;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  font-family: sans-serif;
+  border-top: 3px solid orange;
+  opacity: 1;
+  transition: opacity 1s ease; /* for the fade-out */
+  display: flex;
+  flex-direction: column; /* stack content + progress bar + close button */
+}
+
+/* The main content area inside the notification */
+.notification-content {
+  display: flex;
+  align-items: center;  /* icon + text on the same row */
+}
+
+/* The icon container */
+.notification-icon {
+  margin-right: 10px;
+}
+
+/* The text container */
+.notification-text {
+  flex-grow: 1; /* take up remaining horizontal space */
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Time/due container in a smaller or differently colored text */
+.notification-time {
+  margin-left: 10px; 
+  font-size: 14px;
+  color: #ffa500; /* or another color */
+}
+
+/* The close button (X) in top-right corner or wherever you prefer */
+.close-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: transparent;
+  color: #fff;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Progress bar container */
+.progress-bar-container {
+  height: 5px;
+  width: 100%;
+  background-color: #333;
+  margin-top: 10px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+/* Progress bar itself */
+.progress-bar {
+  height: 100%;
+  width: 0;                      /* Start at 0 */
+  background-color: #4caf50;     /* Green color */
+  transition: width 5s linear;   /* Animate to 100% over 5s */
+}
+
+/* If you have a container for your mic or other UI elements */
+#todoist-mic-main-container {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 300px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background-color: rgba(51, 51, 51, 0.5);
+  border: 1px solid #555;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+  font-family: Arial, sans-serif;
+  color: #ddd;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
 }

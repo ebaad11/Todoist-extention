@@ -1,3 +1,5 @@
+
+
 let starting = null;
 let ending = null;
 (function initAudioRecorder() {
@@ -6,16 +8,27 @@ let ending = null;
   let audioChunks = [];
   let audioStream = null;
   let isRecording = false; // Track recording state
+  
+
 
   // Function to create the recorder UI
   function createRecorderUI(apiKeyAvailable) {
     // Create the recorder UI container
+
+    
+    
     const recorderContainer = document.createElement('div');
     recorderContainer.id = 'todoist-mic-recorder';
     
     
+    // const redContainer = document.createElement('div');
+    // redContainer.style.backgroundColor = 'red';
+    // redContainer.style.width = '100px'; // Set a default width
+    // redContainer.style.height = '100px'; // Set a default height
+    // redContainer.style.margin = '10px'; // Add some margin for spacing
    
     makeContainerDraggable(recorderContainer);
+    // makeContainerDraggable(redContainer);
 
     // Create the recording toggle button
     const recButton = document.createElement('button');
@@ -37,10 +50,12 @@ let ending = null;
 
     // Append the container to the body
     document.body.appendChild(recorderContainer);
+    //  document.body.appendChild(redContainer);
     if (!apiKeyAvailable) {
       recButton.style.display = 'none'; // Hide the recording button if API key is not available
       statusDisplay.textContent = 'API key not available. Recording disabled.';
   }
+    // Create notification container
     // Create notification container
     const notificationContainer = document.createElement('div');
     notificationContainer.id = 'notification-container';
@@ -51,9 +66,12 @@ let ending = null;
     // You can set z-index, padding, etc., if desired
 
     notificationContainer.style.display = 'flex';
-    notificationContainer.style.flexDirection = 'column-reverse';
+    // notificationContainer.style.flexDirection = 'column-reverse';  // CHANGED HERE
+    notificationContainer.style.flexDirection = 'column';            // CHANGED HERE
+
     // Append it to the recorderContainer (or document.body)
     recorderContainer.appendChild(notificationContainer);
+    document.body.appendChild(recorderContainer);
 
     // Return references to the UI elements
     return {
@@ -147,10 +165,16 @@ let ending = null;
         if (response) {
 
           const extractedActions = extractJson(response.actions);
-  
-          extractedActions.forEach(action => {
-            performTodoistAction(action, uiElements);
-          })
+          // console.log("completed extraction")
+          extractedActions.forEach((action, index) => {
+            
+            const action_object = new Action('create', null, action.content, action.due_string, 'en');
+            
+            setTimeout(() => {
+              action_object.performAction(API_KEY, uiElements);
+            }, index * 1600); // Add a delay of 1 second for each subsequent task
+            
+          });
           
         } else {
           // console.log('No response received from background script.');
@@ -193,6 +217,13 @@ function extractJson(response) {
     const jsonStart = response.indexOf("[");
     const jsonEnd = response.lastIndexOf("]");
     return JSON.parse(response.slice(jsonStart, jsonEnd + 1));
+}
+
+function extractJsonGroq(response) {
+  console.log(response,"this is the response")
+  // const jsonStart = response.indexOf("[");
+  // const jsonEnd = response.lastIndexOf("]");
+  return JSON.parse(response);
 }
 
   function blobToBase64(blob) {
@@ -247,77 +278,6 @@ function extractJson(response) {
 
 
 
-function performTodoistAction(action,uiElements) {
-  function showSuccessNotification(message, uiElements) {
-    const { notificationContainer } = uiElements;
-  
-    const notification = document.createElement('div');
-    notification.textContent = message;
-    notification.style.backgroundColor = '#b19cd9'; // Light purple color
-    notification.style.color = 'white';
-    notification.style.margin = '5px';
-    notification.style.padding = '10px'; // Adjusted padding for a squarer appearance
-    notification.style.borderRadius = '8px'; // Adjusted for a squarer shape
-    
-    // Set initial opacity to 0
-    notification.style.opacity = '0';
-    notification.style.transition = 'opacity 1s ease-in-out';
-    // Append notification immediately, but it starts invisible
-    notificationContainer.appendChild(notification);
-  
-    ending = new Date();
-        // Calculate the difference in seconds
-    let timeDifference = (ending - starting) / 1000;
-    console.log(timeDifference)
-
-    setTimeout(() => {
-      notification.style.opacity = '1';
-    }, 1);
-  
-    // After 4 seconds total, fade out over 1 second, then remove
-    setTimeout(() => {
-      notification.style.opacity = '0';
-      setTimeout(() => {
-        notificationContainer.removeChild(notification);
-      }, 1000);
-    }, 4000);
-  }
-  const { statusDisplay } = uiElements;
-  const url = 'https://api.todoist.com/rest/v2/tasks';
-  // Prepare the request payload
-  const payload = {
-    content: action.content,
-    due_string: action.due_string || "today",
-    due_lang: action.due_lang
-  };
-
-  // console.log('Payload:', payload);
-
-  // Make the fetch call
-  fetch(url, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-  })
-  .then(data => {
-    // console.log('Task created successfully:', data);
-    // Add this line:
-    showSuccessNotification(`"${payload.content}" created! Due: ${payload.due_string}`, uiElements);
-  })
-  .catch(error => {
-    console.error('Error:', error.message);
-  });
-}
-
 function makeContainerDraggable(container) {
   let offsetX = 0;
   let offsetY = 0;
@@ -362,3 +322,169 @@ function makeContainerDraggable(container) {
     }
 });
 }
+class Action {
+  constructor(action_type, task_id = null, content = null, due_string = null, due_lang = null, original_content = null, original_due_string = null) {
+    this.action_type = action_type;
+    this.task_id = task_id;
+    this.content = content;
+    this.due_string = due_string;
+    this.due_lang = due_lang;
+    this.original_content = original_content;
+    this.original_due_string = original_due_string;
+  }
+
+  performAction(apiKey, uiElements) {
+    const url = 'https://api.todoist.com/rest/v2/tasks';
+    const payload = {
+      content: this.content,
+      due_string: this.due_string || "today",
+      due_lang: this.due_lang
+    };
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+       // Store the newly-created Task ID for potential revert
+      this.task_id = data.id; 
+      this.showSuccessNotification(`${payload.content}`, uiElements, apiKey, this.due_string);
+    })
+    .catch(error => {
+      console.error('Error:', error.message);
+    });
+  }
+  showSuccessNotification(message, uiElements, apiKey, dueString) {
+    const { notificationContainer } = uiElements;
+  
+    // Create the outer notification div
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+  
+    // 1. Create a container for the icon + text + time
+    const notificationContent = document.createElement('div');
+    notificationContent.className = 'notification-content';
+  
+    // 1a. Notification icon
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'notification-icon';
+    // Insert your Todoist icon here:
+    iconContainer.innerHTML = `
+      <img width="50" height="50"
+           src="https://img.icons8.com/color/50/todoist.png"
+           alt="todoist" />
+    `;
+    notificationContent.appendChild(iconContainer);
+  
+    // 1b. Main text container
+    const textContainer = document.createElement('div');
+    textContainer.className = 'notification-text';
+    textContainer.textContent = message.replace(/silence/gi, ''); // e.g. "Task X created!"
+    notificationContent.appendChild(textContainer);
+  
+    // 1c. Due/time container (in a different color, if you like)
+    const timeContainer = document.createElement('div');
+    timeContainer.className = 'notification-time';
+    // Dynamically add the due date
+    timeContainer.textContent = `${dueString || 'Today'}`;
+    notificationContent.appendChild(timeContainer);
+    // Append the content to the main notification
+    notification.appendChild(notificationContent);
+  
+    // 2. Create the progress bar container
+    const progressBarContainer = document.createElement('div');
+    progressBarContainer.className = 'progress-bar-container';
+  
+    // 2a. Create the progress bar
+    const progressBar = document.createElement('div');
+    progressBar.className = 'progress-bar'; // we’ll style this in CSS
+    progressBarContainer.appendChild(progressBar);
+  
+    // Append progress-bar container to notification
+    notification.appendChild(progressBarContainer);
+  
+    // 3. Create the close (X) button
+    const closeButton = document.createElement('button');
+    closeButton.className = 'close-button';
+    closeButton.textContent = 'X';
+    closeButton.addEventListener('click', () => {
+      this.revertCreation(apiKey, notification);
+    });
+    notification.appendChild(closeButton);
+  
+    // 4. Append the entire notification to container
+    notificationContainer.appendChild(notification);
+  
+    // 5. Trigger the progress bar animation to go from 0% to 100%
+    setTimeout(() => {
+      progressBar.style.width = '100%';
+    }, 10);
+  
+    // 6. After 5s, fade out & remove the notification (if user hasn’t clicked X)
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notificationContainer.removeChild(notification);
+        }
+      }, 1000);
+    }, 5000);
+  }
+  
+  revertCreation(apiKey, notification, progressBar) {
+    if (!this.task_id) {
+      console.error('No task_id to revert!');
+      return;
+    }
+  
+    const url = `https://api.todoist.com/rest/v2/tasks/${this.task_id}`;
+    
+    fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      console.log(`Task ${this.task_id} reverted (deleted).`);
+  
+      // Overwrite the notification text:
+      notification.textContent = 'Task Deleted';
+      // If you still want to remove the progress bar separately:
+      if (progressBar && progressBar.parentNode) {
+        progressBar.remove();
+      }
+  
+      // Fade out & remove the notification
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 1000);
+      }, 2000);
+    })
+    .catch(error => {
+      console.error('Error reverting task:', error.message);
+    });
+  }
+  
+
+}
+
+
+// so now what I want to do, is do is once the task is created I want to start a little progress bar that goes to the end of the notification, so this happens for a total of 5 seconds and then the task disapreas
